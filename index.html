@@ -1,33 +1,35 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
 <title>Entry Counter</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700;800&display=swap">
 <style>
-/* Layout: front desk is one screen (big daily count + one-tap destination tiles); the Admin tab holds the destination list and 7-day totals. Wayfinding-sign type, cool paper neutrals, one cobalt action color. */
+/* Layout: front desk is one screen (big daily count + one-tap destination tiles); the Admin tab holds the destination list and 7-day totals. */
 :root{
   --bg:#EDF0EE; --surface:#FFFFFF; --surface-2:#F4F6F5; --ink:#12201D; --muted:#566662; --line:#D2D9D6;
   --accent:#1B4FD6; --accent-ink:#FFFFFF; --accent-soft:#E2E9FB;
-  --ok:#14764A; --warn:#9A5B00; --danger:#B3261E; --danger-soft:#FBE7E5;
+  --danger:#B3261E; --danger-soft:#FBE7E5;
   --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
+  :root{
     --bg:#0C1311; --surface:#15201D; --surface-2:#1B2825; --ink:#E6EEEB; --muted:#94A5A0; --line:#2A3A36;
     --accent:#7AA2FF; --accent-ink:#0A1226; --accent-soft:#1A2745;
-    --ok:#4CC38A; --warn:#E0A84A; --danger:#FF8A80; --danger-soft:#3A1F1D;
+    --danger:#FF8A80; --danger-soft:#3A1F1D;
     color-scheme:dark;
   }
 }
-:root[data-theme="dark"]{
-  --bg:#0C1311; --surface:#15201D; --surface-2:#1B2825; --ink:#E6EEEB; --muted:#94A5A0; --line:#2A3A36;
-  --accent:#7AA2FF; --accent-ink:#0A1226; --accent-soft:#1A2745;
-  --ok:#4CC38A; --warn:#E0A84A; --danger:#FF8A80; --danger-soft:#3A1F1D;
-  color-scheme:dark;
-}
 *{box-sizing:border-box}
+html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+[hidden]{display:none!important}
 .app{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:16px 48px}
 button,input{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
@@ -35,7 +37,6 @@ button,input{font:inherit;color:inherit}
 h1,h2,h3,p,dl,dd,ul{margin:0}
 ul{padding:0;list-style:none}
 
-/* header */
 .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 .brand{display:flex;align-items:center;gap:10px;min-width:0}
 .brand svg{flex:none;color:var(--accent)}
@@ -46,7 +47,6 @@ ul{padding:0;list-style:none}
 .notice{border:1px solid var(--line);background:var(--surface-2);border-radius:4px;padding:12px 14px;margin-bottom:16px;color:var(--muted)}
 .notice strong{color:var(--ink)}
 
-/* shared bits */
 .eyebrow{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .hint{font-size:14px;color:var(--muted)}
 .sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px;margin-bottom:12px}
@@ -62,8 +62,9 @@ ul{padding:0;list-style:none}
 .field label{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .input{min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:4px;background:var(--surface);width:100%;min-width:0}
 .input:focus-visible{border-color:var(--accent)}
+.gate{max-width:440px;margin:24px auto}
+.gate form{display:flex;flex-direction:column;gap:12px;margin-top:12px}
 
-/* front desk */
 .desk{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:16px;align-items:start}
 .side{display:flex;flex-direction:column;gap:16px}
 .counter{padding:18px 18px 16px}
@@ -80,7 +81,6 @@ ul{padding:0;list-style:none}
 .tile{display:flex;flex-direction:column;justify-content:space-between;gap:8px;min-height:116px;padding:14px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:4px;cursor:pointer;min-width:0;transition:background .2s,border-color .2s,transform .1s}
 .tile:hover:not(:disabled){border-color:var(--accent)}
 .tile:active:not(:disabled){transform:scale(.98)}
-.tile:disabled{opacity:.5;cursor:not-allowed}
 .tile.pulse{background:var(--accent-soft);border-color:var(--accent)}
 .tile-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .tile-name{font-family:var(--display);font-weight:700;font-size:27px;line-height:1.05;letter-spacing:.01em;overflow-wrap:anywhere}
@@ -95,7 +95,6 @@ ul{padding:0;list-style:none}
 .recent .d{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
 .empty{padding:14px 0;color:var(--muted)}
 
-/* admin */
 .admin{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
 .add-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:end;margin-bottom:6px}
 .form-msg{min-height:20px;font-size:14px;color:var(--danger);margin-bottom:8px}
@@ -137,9 +136,7 @@ ul{padding:0;list-style:none}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:4px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px);text-align:center;z-index:10}
 #toast.show{opacity:1;transform:translate(-50%,0)}
 
-@media (max-width:860px){
-  .desk,.admin{grid-template-columns:minmax(0,1fr)}
-}
+@media (max-width:860px){ .desk,.admin{grid-template-columns:minmax(0,1fr)} }
 @media (max-width:520px){
   .add-form{grid-template-columns:minmax(0,1fr)}
   .split{grid-template-columns:1fr 1fr}
@@ -152,20 +149,32 @@ ul{padding:0;list-style:none}
   .tile:active:not(:disabled){transform:none}
 }
 </style>
-
+</head>
+<body>
 <div class="app">
   <header class="top">
     <div class="brand">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square" aria-hidden="true"><path d="M14 4h6v16h-6"/><path d="M3 12h12M11 8l4 4-4 4"/></svg>
       <h1>Entry Counter</h1>
     </div>
-    <nav class="tabs" role="tablist" aria-label="Sections">
+    <nav class="tabs" id="tabs" role="tablist" aria-label="Sections">
       <button class="tab" role="tab" id="tab-desk" aria-selected="true" aria-controls="panel-desk" data-act="tab" data-tab="desk">Front desk</button>
       <button class="tab" role="tab" id="tab-admin" aria-selected="false" aria-controls="panel-admin" data-act="tab" data-tab="admin">Admin</button>
     </nav>
   </header>
 
   <div id="banner" class="notice" hidden></div>
+
+  <!-- Staff PIN (only shown when STAFF_PIN is set on the server) -->
+  <section id="gate" class="card gate" hidden>
+    <h2 class="eyebrow">Staff PIN</h2>
+    <p class="hint" style="margin-top:6px">Enter the PIN to use the counter.</p>
+    <form id="gate-form" autocomplete="off">
+      <div class="field"><label for="gate-pin">PIN</label><input class="input" id="gate-pin" type="password" inputmode="numeric" autocomplete="off" required></div>
+      <p class="form-msg" id="gate-msg" role="alert"></p>
+      <button class="btn primary" type="submit">Unlock</button>
+    </form>
+  </section>
 
   <section id="panel-desk" class="desk" role="tabpanel" aria-labelledby="tab-desk">
     <div class="side">
@@ -183,7 +192,7 @@ ul{padding:0;list-style:none}
         <p class="eyebrow" id="group-label">People in this group</p>
         <div class="stepper" role="group" aria-labelledby="group-label">
           <button type="button" data-act="step" data-d="-1" aria-label="One fewer person">−</button>
-          <output id="group-val" for="group-label">1</output>
+          <output id="group-val">1</output>
           <button type="button" data-act="step" data-d="1" aria-label="One more person">+</button>
         </div>
         <p class="hint">Goes back to 1 after each entry.</p>
@@ -203,35 +212,47 @@ ul{padding:0;list-style:none}
     </div>
   </section>
 
-  <section id="panel-admin" class="admin" role="tabpanel" aria-labelledby="tab-admin" hidden>
-    <div class="card">
-      <div class="sec-head">
-        <h2>Destinations</h2>
-        <p class="hint">The list front desk staff tap from.</p>
-      </div>
-      <div id="locked" class="notice" hidden><strong>Admin access needed.</strong> You can see the list but only an editor can change it. Ask the owner to share this page with you as an Editor.</div>
-      <form id="add-form" class="add-form" autocomplete="off" hidden>
-        <div class="field"><label for="dest-name">Destination</label><input class="input" id="dest-name" maxlength="60" placeholder="e.g. Laboratory" required></div>
-        <div class="field"><label for="dest-note">Location note</label><input class="input" id="dest-note" maxlength="80" placeholder="e.g. Ground floor, east wing"></div>
-        <button class="btn primary" type="submit">Add</button>
+  <section id="panel-admin" role="tabpanel" aria-labelledby="tab-admin" hidden>
+    <section id="admin-gate" class="card gate" hidden>
+      <h2 class="eyebrow">Admin password</h2>
+      <p class="hint" id="admin-gate-hint" style="margin-top:6px">Enter the admin password to manage destinations.</p>
+      <form id="admin-form" autocomplete="off">
+        <div class="field"><label for="admin-pw">Password</label><input class="input" id="admin-pw" type="password" autocomplete="current-password" required></div>
+        <p class="form-msg" id="admin-msg" role="alert"></p>
+        <button class="btn primary" type="submit">Sign in</button>
       </form>
-      <p class="form-msg" id="form-msg" role="alert"></p>
-      <ul class="dlist" id="dlist"></ul>
-    </div>
-    <div class="card">
-      <div class="sec-head">
-        <h2>Last 7 days</h2>
-        <p class="hint">People who entered, per day.</p>
+    </section>
+
+    <div id="admin-body" class="admin" hidden>
+      <div class="card">
+        <div class="sec-head">
+          <h2>Destinations</h2>
+          <p class="hint">The list front desk staff tap from.</p>
+        </div>
+        <form id="add-form" class="add-form" autocomplete="off">
+          <div class="field"><label for="dest-name">Destination</label><input class="input" id="dest-name" maxlength="60" placeholder="e.g. Laboratory" required></div>
+          <div class="field"><label for="dest-note">Location note</label><input class="input" id="dest-note" maxlength="80" placeholder="e.g. Ground floor, east wing"></div>
+          <button class="btn primary" type="submit">Add</button>
+        </form>
+        <p class="form-msg" id="form-msg" role="alert"></p>
+        <ul class="dlist" id="dlist"></ul>
+        <div class="tools"><button type="button" class="btn small" data-act="signout">Sign out of admin</button></div>
       </div>
-      <div class="sum"><b id="w-total">–</b><span class="muted">people in 7 days</span></div>
-      <div class="bars" id="bars" aria-label="People entering per day"></div>
-      <div class="bydest">
-        <p class="eyebrow">By destination, 7 days</p>
-        <ul id="bydest"></ul>
-      </div>
-      <div class="tools">
-        <button type="button" class="btn" data-act="refresh">Refresh</button>
-        <button type="button" class="btn" id="export" data-act="export" hidden>Export CSV</button>
+      <div class="card">
+        <div class="sec-head">
+          <h2>Last 7 days</h2>
+          <p class="hint">People who entered, per day.</p>
+        </div>
+        <div class="sum"><b id="w-total">–</b><span class="muted">people in 7 days</span></div>
+        <div class="bars" id="bars" aria-label="People entering per day"></div>
+        <div class="bydest">
+          <p class="eyebrow">By destination, 7 days</p>
+          <ul id="bydest"></ul>
+        </div>
+        <div class="tools">
+          <button type="button" class="btn" data-act="refresh">Refresh</button>
+          <button type="button" class="btn" data-act="export">Export CSV</button>
+        </div>
       </div>
     </div>
   </section>
@@ -242,24 +263,36 @@ ul{padding:0;list-style:none}
 (function(){
   var $ = function(s){ return document.querySelector(s); };
   var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
-  var pad = function(n){ return String(n).padStart(2,'0'); };
-  var dayKey = function(d){ d = d || new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); };
-  var timeStr = function(ts){ var d = new Date(ts); return pad(d.getHours())+':'+pad(d.getMinutes()); };
   var sum = function(list, f){ var t = 0; for (var i=0;i<list.length;i++) t += f(list[i]); return t; };
   var ICON_UP = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 10l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
   var ICON_DOWN = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
 
+  /* credentials: staff PIN survives reloads on a front-desk device; admin password lasts for the tab */
+  function store(kind, k, v){
+    var s; try { s = kind === 'local' ? localStorage : sessionStorage; } catch(e){ return ''; }
+    try { if (v === undefined) return s.getItem(k) || ''; if (v) s.setItem(k, v); else s.removeItem(k); } catch(e){}
+    return '';
+  }
+
   var S = {
-    db:null, dl:null, canAdmin:false, canWrite:true,
-    tab:'desk', group:1, day:dayKey(),
-    dests:[], destsLoaded:false, today:[], todayLoaded:false,
-    mine:[], week:null, weekLoading:false, weekErr:false,
-    editing:null, draft:{}, confirmDel:null, unsubToday:null
+    tz:'', day:'', dests:[], loaded:false, data:{},
+    tab:'desk', group:1, mine:[],
+    isAdmin:false, adminConfigured:true, staffRequired:false, locked:false,
+    editing:null, draft:{}, confirmDel:null,
+    weekLoading:false, weekErr:false, polling:false, fails:0
   };
 
-  function use(name){
-    if (!window.claude || !window.claude.use) return Promise.resolve(null);
-    return window.claude.use(name).then(function(x){ return x || null; }, function(){ return null; });
+  function api(method, url, body){
+    var h = { 'content-type':'application/json' };
+    var pin = store('local','staffPin'), pw = store('session','adminPw');
+    if (pin) h['x-staff-pin'] = pin;
+    if (pw) h['x-admin-password'] = pw;
+    return fetch(url, { method:method, headers:h, body: body ? JSON.stringify(body) : undefined }).then(function(r){
+      return r.json().catch(function(){ return null; }).then(function(data){
+        if (!r.ok){ var e = new Error((data && data.error) || ('Error ' + r.status)); e.status = r.status; e.data = data; throw e; }
+        return data;
+      });
+    });
   }
 
   var toastTimer = null;
@@ -278,93 +311,126 @@ ul{padding:0;list-style:none}
     }
   }
 
+  /* time helpers use the server's time zone so every device agrees on "today" */
+  function timeStr(ts){
+    try { return new Date(ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:S.tz||undefined}); }
+    catch(e){ return new Date(ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
+  }
+  function dayDate(key){ var p = key.split('-').map(Number); return new Date(Date.UTC(p[0], p[1]-1, p[2], 12)); }
+  function lastDays(){
+    var out = [];
+    if (!S.day) return out;
+    var base = dayDate(S.day);
+    for (var i=6;i>=0;i--){
+      var d = new Date(base.getTime() - i*86400000);
+      out.push({ key:d.toISOString().slice(0,10), date:d });
+    }
+    return out;
+  }
+  function entriesFor(key){ return S.data[key] || []; }
+  function todayList(){ return entriesFor(S.day); }
+
   function destName(id, fallback){
     for (var i=0;i<S.dests.length;i++) if (S.dests[i].id === id) return S.dests[i].name;
     return fallback ? fallback + ' (removed)' : 'No destination';
   }
   function activeDests(){ return S.dests.filter(function(d){ return d.active !== false; }); }
-  function todayCountFor(id){ return sum(S.today.filter(function(e){ return (e.dest||'') === id; }), function(e){ return e.n||1; }); }
+  function todayCountFor(id){ return sum(todayList().filter(function(e){ return (e.dest||'') === id; }), function(e){ return e.n||1; }); }
 
   /* ---------- front desk ---------- */
   function renderDesk(){
-    var total = sum(S.today, function(e){ return e.n||1; });
-    var none = sum(S.today.filter(function(e){ return !e.dest; }), function(e){ return e.n||1; });
-    var last = 0; S.today.forEach(function(e){ if (e.ts > last) last = e.ts; });
-    $('#big').textContent = S.todayLoaded ? total : '–';
-    $('#datel').textContent = new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    var list = todayList();
+    var total = sum(list, function(e){ return e.n||1; });
+    var none = sum(list.filter(function(e){ return !e.dest; }), function(e){ return e.n||1; });
+    var last = 0; list.forEach(function(e){ if (e.ts > last) last = e.ts; });
+    $('#big').textContent = S.loaded ? total : '–';
+    $('#datel').textContent = S.day ? dayDate(S.day).toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}) : '';
     $('#s-assigned').textContent = total - none;
     $('#s-none').textContent = none;
     $('#s-last').textContent = last ? timeStr(last) : '–';
     $('#group-val').textContent = S.group;
-    $('#undo').disabled = !S.mine.length || !S.canWrite;
+    $('#undo').disabled = !S.mine.length;
 
-    var dis = S.canWrite ? '' : ' disabled';
     var html = activeDests().map(function(d){
-      return '<button type="button" class="tile" data-act="log" data-dest="'+esc(d.id)+'" data-focus="t-'+esc(d.id)+'"'+dis+'>'
+      return '<button type="button" class="tile" data-act="log" data-dest="'+esc(d.id)+'" data-focus="t-'+esc(d.id)+'">'
         + '<span class="tile-top"><span class="tile-name">'+esc(d.name)+'</span><span class="tile-count">'+todayCountFor(d.id)+'</span></span>'
         + '<span class="tile-note">'+esc(d.note || '')+'</span></button>';
     }).join('');
-    html += '<button type="button" class="tile none" data-act="log" data-dest="" data-focus="t-none"'+dis+'>'
+    html += '<button type="button" class="tile none" data-act="log" data-dest="" data-focus="t-none">'
       + '<span class="tile-top"><span class="tile-name">Just count</span><span class="tile-count">'+none+'</span></span>'
       + '<span class="tile-note">No destination yet</span></button>';
-    if (S.destsLoaded && !activeDests().length){
+    if (S.loaded && !activeDests().length){
       html = '<p class="empty" style="grid-column:1/-1">No destinations yet. Open the Admin tab to add the list. You can still count entries below.</p>' + html;
     }
     keepFocus(function(){ $('#tiles').innerHTML = html; });
 
-    var recent = S.today.slice().sort(function(a,b){ return b.ts - a.ts; }).slice(0,8);
+    var recent = list.slice().sort(function(a,b){ return b.ts - a.ts; }).slice(0,8);
     $('#recent').innerHTML = recent.length ? recent.map(function(e){
       var nm = e.dest ? destName(e.dest, e.destName) : 'Counted only';
       return '<li><span class="t">'+timeStr(e.ts)+'</span><span class="n">+'+(e.n||1)+'</span><span class="d">'+esc(nm)+'</span>'
-        + (S.canWrite ? '<button type="button" class="btn small" data-act="remove" data-id="'+esc(e.id)+'" aria-label="Remove entry at '+timeStr(e.ts)+'">Remove</button>' : '')
-        + '</li>';
-    }).join('') : '<li class="empty">'+(S.todayLoaded ? 'No entries yet today.' : 'Loading…')+'</li>';
+        + '<button type="button" class="btn small" data-act="remove" data-id="'+esc(e.id)+'" aria-label="Remove entry at '+timeStr(e.ts)+'">Remove</button></li>';
+    }).join('') : '<li class="empty">'+(S.loaded ? 'No entries yet today.' : 'Loading…')+'</li>';
   }
 
-  function logEntry(destId, btn){
-    if (!S.db || !S.canWrite) return;
-    var n = S.group;
-    var name = destId ? destName(destId) : '';
-    var entry = { ts: Date.now(), day: dayKey(), n: n, dest: destId || '', destName: name };
-    S.group = 1;
-    S.db.collection('entries').add(entry).then(function(ref){
-      S.mine.push(ref); renderDesk();
-      toast('+' + n + (name ? ' to ' + name : ' counted'));
-    }, function(){
-      S.group = n; renderDesk();
-      toast('Could not save that entry. Check your access and try again.');
-    });
-    renderDesk();
+  function logEntry(destId){
+    if (!S.loaded) return;
+    var n = S.group, name = destId ? destName(destId) : '';
+    S.group = 1; renderDesk();
     var b = document.querySelector('[data-focus="' + (destId ? 't-'+destId : 't-none') + '"]');
     if (b){ b.classList.add('pulse'); setTimeout(function(){ b.classList.remove('pulse'); }, 350); }
+    api('POST','/api/entries',{ dest:destId, n:n }).then(function(r){
+      (S.data[r.day] = S.data[r.day] || []).push(r.entry);
+      S.mine.push({ day:r.day, id:r.entry.id });
+      renderAll();
+      toast('+' + n + (name ? ' to ' + name : ' counted'));
+    }, function(e){
+      S.group = n; renderDesk(); handleErr(e, 'Could not save that entry.');
+    });
   }
-
+  function dropLocal(day, id){
+    S.data[day] = (S.data[day] || []).filter(function(e){ return e.id !== id; });
+    S.mine = S.mine.filter(function(m){ return m.id !== id; });
+  }
   function undoLast(){
-    var ref = S.mine.pop();
-    if (!ref){ return; }
-    ref.delete().then(function(){ toast('Last entry removed'); }, function(){ S.mine.push(ref); toast('Could not remove that entry.'); });
-    renderDesk();
+    var m = S.mine[S.mine.length - 1]; if (!m) return;
+    api('DELETE','/api/entries?day='+encodeURIComponent(m.day)+'&id='+encodeURIComponent(m.id)).then(function(){
+      dropLocal(m.day, m.id); renderAll(); toast('Last entry removed');
+    }, function(e){ handleErr(e, 'Could not remove that entry.'); });
   }
   function removeEntry(id){
-    S.mine = S.mine.filter(function(r){ return r.id !== id; });
-    S.db.doc('entries/' + id).delete().then(function(){ toast('Entry removed'); }, function(){ toast('Could not remove that entry.'); });
-    renderDesk();
+    api('DELETE','/api/entries?day='+encodeURIComponent(S.day)+'&id='+encodeURIComponent(id)).then(function(){
+      dropLocal(S.day, id); renderAll(); toast('Entry removed');
+    }, function(e){ handleErr(e, 'Could not remove that entry.'); });
+  }
+
+  function handleErr(e, fallback){
+    if (e.status === 401){
+      if (e.data && e.data.staffRequired){ store('local','staffPin',''); S.locked = true; applyView(); return; }
+      store('session','adminPw',''); S.isAdmin = false; applyView(); toast('Admin password needed.'); return;
+    }
+    toast(e.message || fallback);
   }
 
   /* ---------- admin: destinations ---------- */
+  function newId(name){
+    var base = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,30) || 'dest';
+    return base + '-' + Math.random().toString(36).slice(2,6);
+  }
+  function saveDests(next, okMsg){
+    return api('PUT','/api/destinations',{ destinations: next }).then(function(r){
+      S.dests = r.destinations; renderAll(); if (okMsg) toast(okMsg); return true;
+    }, function(e){ formMsg(e.message); handleErr(e, 'Could not save the list.'); return false; });
+  }
   function renderDests(){
-    var adm = S.canAdmin;
-    $('#locked').hidden = adm;
-    $('#add-form').hidden = !adm;
     var list = S.dests;
     var html = list.map(function(d, i){
       var id = esc(d.id);
-      if (adm && S.confirmDel === d.id){
+      if (S.confirmDel === d.id){
         return '<li class="drow confirm"><div class="dmain"><strong>Delete “'+esc(d.name)+'”?</strong><span>Past entries keep the name. This cannot be undone.</span></div>'
           + '<div class="dact"><button type="button" class="btn small danger" data-act="del-yes" data-id="'+id+'" data-focus="dy-'+id+'">Delete</button>'
           + '<button type="button" class="btn small" data-act="del-no" data-focus="dn-'+id+'">Keep</button></div></li>';
       }
-      if (adm && S.editing === d.id){
+      if (S.editing === d.id){
         var nm = S.draft.name != null ? S.draft.name : d.name;
         var nt = S.draft.note != null ? S.draft.note : (d.note || '');
         return '<li class="drow edit"><div class="field"><label for="e-name">Destination</label><input class="input" id="e-name" maxlength="60" data-draft="name" data-focus="en" value="'+esc(nm)+'"></div>'
@@ -372,26 +438,18 @@ ul{padding:0;list-style:none}
           + '<div class="dact"><button type="button" class="btn small primary" data-act="save" data-id="'+id+'">Save</button><button type="button" class="btn small" data-act="cancel">Cancel</button></div></li>';
       }
       var on = d.active !== false;
-      var row = '<li class="drow'+(on?'':' off')+'">';
-      if (adm){
-        row += '<div class="order"><button type="button" data-act="up" data-id="'+id+'" data-focus="up-'+id+'" aria-label="Move '+esc(d.name)+' up"'+(i===0?' disabled':'')+'>'+ICON_UP+'</button>'
-          + '<button type="button" data-act="down" data-id="'+id+'" data-focus="dn2-'+id+'" aria-label="Move '+esc(d.name)+' down"'+(i===list.length-1?' disabled':'')+'>'+ICON_DOWN+'</button></div>';
-      }
-      row += '<div class="dmain"><strong>'+esc(d.name)+'</strong><span>'+esc(d.note || 'No location note')+'</span></div>'
-        + '<div class="dcount"><b>'+todayCountFor(d.id)+'</b><span>today</span></div>';
-      if (adm){
-        row += '<button type="button" class="switch" role="switch" aria-checked="'+on+'" data-act="toggle" data-id="'+id+'" data-focus="sw-'+id+'" aria-label="Show '+esc(d.name)+' at the front desk">'+(on?'Shown':'Hidden')+'</button>'
-          + '<div class="dact"><button type="button" class="btn small" data-act="edit" data-id="'+id+'" data-focus="ed-'+id+'">Edit</button>'
-          + '<button type="button" class="btn small danger" data-act="del" data-id="'+id+'" data-focus="dl-'+id+'">Delete</button></div>';
-      } else {
-        row += '<span class="muted">'+(on?'Shown':'Hidden')+'</span>';
-      }
-      return row + '</li>';
+      return '<li class="drow'+(on?'':' off')+'">'
+        + '<div class="order"><button type="button" data-act="up" data-id="'+id+'" data-focus="up-'+id+'" aria-label="Move '+esc(d.name)+' up"'+(i===0?' disabled':'')+'>'+ICON_UP+'</button>'
+        + '<button type="button" data-act="down" data-id="'+id+'" data-focus="dn2-'+id+'" aria-label="Move '+esc(d.name)+' down"'+(i===list.length-1?' disabled':'')+'>'+ICON_DOWN+'</button></div>'
+        + '<div class="dmain"><strong>'+esc(d.name)+'</strong><span>'+esc(d.note || 'No location note')+'</span></div>'
+        + '<div class="dcount"><b>'+todayCountFor(d.id)+'</b><span>today</span></div>'
+        + '<button type="button" class="switch" role="switch" aria-checked="'+on+'" data-act="toggle" data-id="'+id+'" data-focus="sw-'+id+'" aria-label="Show '+esc(d.name)+' at the front desk">'+(on?'Shown':'Hidden')+'</button>'
+        + '<div class="dact"><button type="button" class="btn small" data-act="edit" data-id="'+id+'" data-focus="ed-'+id+'">Edit</button>'
+        + '<button type="button" class="btn small danger" data-act="del" data-id="'+id+'" data-focus="dl-'+id+'">Delete</button></div></li>';
     }).join('');
-    if (!list.length) html = '<li class="empty">'+(S.destsLoaded ? 'No destinations yet. Add the first one above.' : 'Loading…')+'</li>';
+    if (!list.length) html = '<li class="empty">'+(S.loaded ? 'No destinations yet. Add the first one above.' : 'Loading…')+'</li>';
     keepFocus(function(){ $('#dlist').innerHTML = html; });
   }
-
   function formMsg(t){ $('#form-msg').textContent = t || ''; }
   function nameTaken(name, exceptId){
     var low = name.toLowerCase();
@@ -402,71 +460,42 @@ ul{padding:0;list-style:none}
     if (!name){ formMsg('Enter a destination name.'); return; }
     if (nameTaken(name)){ formMsg('A destination called “' + name + '” already exists.'); return; }
     formMsg('');
-    var order = S.dests.reduce(function(m,d){ return Math.max(m, d.order || 0); }, 0) + 10;
-    S.db.collection('destinations').add({ name:name, note:note, active:true, order:order }).then(function(){
-      $('#dest-name').value = ''; $('#dest-note').value = ''; $('#dest-name').focus();
-      toast('Added ' + name);
-    }, function(){ formMsg('Could not save. Only editors can change the list.'); });
+    var next = S.dests.concat([{ id:newId(name), name:name, note:note, active:true }]);
+    saveDests(next, 'Added ' + name).then(function(ok){
+      if (ok){ $('#dest-name').value = ''; $('#dest-note').value = ''; $('#dest-name').focus(); }
+    });
   }
   function saveEdit(id){
     var name = ($('#e-name').value || '').trim(), note = ($('#e-note').value || '').trim();
     if (!name){ formMsg('A destination needs a name.'); return; }
     if (nameTaken(name, id)){ formMsg('A destination called “' + name + '” already exists.'); return; }
     formMsg('');
-    S.db.doc('destinations/' + id).update({ name:name, note:note }).then(function(){
-      S.editing = null; S.draft = {}; renderDests(); toast('Saved');
-    }, function(){ formMsg('Could not save. Only editors can change the list.'); });
+    var next = S.dests.map(function(d){ return d.id === id ? Object.assign({}, d, { name:name, note:note }) : d; });
+    saveDests(next, 'Saved').then(function(ok){ if (ok){ S.editing = null; S.draft = {}; renderDests(); } });
   }
   function toggleDest(id){
-    var d = S.dests.filter(function(x){ return x.id === id; })[0]; if (!d) return;
-    S.db.doc('destinations/' + id).update({ active: d.active === false }).catch(function(){ toast('Could not change that. Only editors can.'); });
+    saveDests(S.dests.map(function(d){ return d.id === id ? Object.assign({}, d, { active: d.active === false }) : d; }));
   }
   function moveDest(id, dir){
     var i = S.dests.findIndex(function(d){ return d.id === id; }), j = i + dir;
     if (i < 0 || j < 0 || j >= S.dests.length) return;
     var arr = S.dests.slice(); var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
-    var chain = Promise.resolve();
-    arr.forEach(function(d, idx){
-      var want = (idx + 1) * 10;
-      if (d.order !== want) chain = chain.then(function(){ return S.db.doc('destinations/' + d.id).update({ order: want }); });
-    });
-    chain.catch(function(){ toast('Could not reorder. Only editors can.'); });
+    saveDests(arr);
   }
   function deleteDest(id){
     S.confirmDel = null;
-    S.db.doc('destinations/' + id).delete().then(function(){ toast('Destination deleted'); }, function(){ toast('Could not delete. Only editors can.'); });
-    renderDests();
+    saveDests(S.dests.filter(function(d){ return d.id !== id; }), 'Destination deleted');
   }
 
   /* ---------- admin: last 7 days ---------- */
-  function lastDays(){
-    var out = [];
-    for (var i=6;i>=0;i--){ var d = new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()-i); out.push({ key:dayKey(d), date:d }); }
-    return out;
-  }
-  function entriesFor(key){
-    if (key === S.day) return S.today;
-    return (S.week && S.week[key]) || [];
-  }
-  function loadWeek(){
-    if (!S.db) return;
-    S.weekLoading = true; S.weekErr = false; renderWeek();
-    var days = lastDays();
-    Promise.all(days.map(function(d){ return S.db.collection('entries').where('day','==',d.key).limit(1000).get(); })).then(function(snaps){
-      S.week = {};
-      days.forEach(function(d, i){ S.week[d.key] = snaps[i].docs.map(function(x){ return x.data(); }); });
-      S.weekLoading = false; renderWeek();
-    }, function(){ S.weekLoading = false; S.weekErr = true; renderWeek(); });
-  }
   function renderWeek(){
     var days = lastDays();
     var totals = days.map(function(d){ return sum(entriesFor(d.key), function(e){ return e.n||1; }); });
     var max = Math.max.apply(null, totals.concat([1]));
-    var grand = totals.reduce(function(a,b){ return a+b; }, 0);
-    $('#w-total').textContent = S.week || S.todayLoaded ? grand : '–';
+    $('#w-total').textContent = S.loaded ? totals.reduce(function(a,b){ return a+b; }, 0) : '–';
     $('#bars').innerHTML = days.map(function(d, i){
-      var wd = d.date.toLocaleDateString(undefined,{weekday:'short'});
-      var dd = d.date.toLocaleDateString(undefined,{day:'numeric',month:'short'});
+      var wd = d.date.toLocaleDateString(undefined,{weekday:'short',timeZone:'UTC'});
+      var dd = d.date.toLocaleDateString(undefined,{day:'numeric',month:'short',timeZone:'UTC'});
       return '<div class="bar-col'+(d.key===S.day?' today':'')+'"><span class="bar-val">'+totals[i]+'</span>'
         + '<div class="bar-track"><div class="bar" style="height:'+(totals[i]/max*100)+'%"></div></div>'
         + '<span class="bar-label">'+esc(wd)+'<br>'+esc(dd)+'</span></div>';
@@ -486,6 +515,10 @@ ul{padding:0;list-style:none}
       return '<li><span class="nm">'+esc(r.name)+'</span><span class="v">'+r.n+'</span><span class="meter"><i style="width:'+(r.n/top*100)+'%"></i></span></li>';
     }).join('') : '<li class="empty">'+msg+'</li>';
   }
+  function loadWeek(){
+    S.weekLoading = true; S.weekErr = false; renderWeek();
+    return refresh(7).then(function(){ S.weekLoading = false; renderWeek(); }, function(){ S.weekLoading = false; S.weekErr = true; renderWeek(); });
+  }
 
   function csvCell(v){
     v = String(v == null ? '' : v);
@@ -493,36 +526,69 @@ ul{padding:0;list-style:none}
     return '"' + v.replace(/"/g,'""') + '"';
   }
   function exportCsv(){
-    if (!S.dl) return;
     var days = lastDays(), all = [];
-    days.forEach(function(d){ entriesFor(d.key).forEach(function(e){ all.push(e); }); });
-    all.sort(function(a,b){ return a.ts - b.ts; });
+    days.forEach(function(d){ entriesFor(d.key).forEach(function(e){ all.push({ day:d.key, e:e }); }); });
+    all.sort(function(a,b){ return a.e.ts - b.e.ts; });
     var lines = ['Date,Time,People,Destination'];
-    all.forEach(function(e){
-      lines.push([csvCell(e.day), csvCell(timeStr(e.ts)), e.n||1, csvCell(e.dest ? destName(e.dest, e.destName) : 'Counted only')].join(','));
+    all.forEach(function(x){
+      lines.push([csvCell(x.day), csvCell(timeStr(x.e.ts)), x.e.n||1, csvCell(x.e.dest ? destName(x.e.dest, x.e.destName) : 'Counted only')].join(','));
     });
-    S.dl.save({ filename: 'entries-' + days[0].key + '-to-' + days[6].key + '.csv', data: lines.join('\n') }).then(function(){
-      toast('CSV saved');
-    }, function(e){ if (!e || e.code !== 'declined') toast('Could not save the file here.'); });
+    var blob = new Blob(['﻿' + lines.join('\n')], { type:'text/csv;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'entries-' + days[0].key + '-to-' + days[6].key + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
   }
 
-  /* ---------- wiring ---------- */
+  /* ---------- views, data loading ---------- */
+  function applyView(){
+    $('#gate').hidden = !S.locked;
+    $('#tabs').hidden = S.locked;
+    $('#panel-desk').hidden = S.locked || S.tab !== 'desk';
+    $('#panel-admin').hidden = S.locked || S.tab !== 'admin';
+    $('#admin-gate').hidden = S.isAdmin;
+    $('#admin-body').hidden = !S.isAdmin;
+    $('#admin-gate-hint').textContent = S.adminConfigured
+      ? 'Enter the admin password to manage destinations.'
+      : 'Admin is turned off. Set the ADMIN_PASSWORD environment variable in Vercel, then redeploy.';
+    $('#admin-form').hidden = !S.adminConfigured;
+    ['desk','admin'].forEach(function(k){ $('#tab-'+k).setAttribute('aria-selected', String(k === S.tab)); });
+  }
   function renderAll(){
+    applyView();
     keepFocus(function(){
       renderDesk();
-      if (S.tab === 'admin'){ renderDests(); renderWeek(); }
+      if (S.tab === 'admin' && S.isAdmin){ renderDests(); renderWeek(); }
     });
   }
   function setTab(t){
-    S.tab = t;
-    ['desk','admin'].forEach(function(k){
-      $('#panel-'+k).hidden = k !== t;
-      $('#tab-'+k).setAttribute('aria-selected', String(k === t));
-    });
-    if (t === 'admin'){ renderDests(); renderWeek(); if (S.db && !S.week && !S.weekLoading) loadWeek(); }
-    else renderDesk();
+    S.tab = t; renderAll();
+    if (t === 'admin' && S.isAdmin) loadWeek();
   }
 
+  function refresh(days){
+    return api('GET','/api/state?days=' + days).then(function(d){
+      S.fails = 0; showBanner(''); S.locked = false;
+      S.tz = d.tz; S.day = d.today; S.dests = d.destinations; S.loaded = true;
+      S.adminConfigured = d.adminConfigured; S.staffRequired = d.staffRequired;
+      Object.keys(d.days).forEach(function(k){ S.data[k] = d.days[k]; });
+      renderAll();
+    }, function(e){
+      if (e.status === 401){ S.locked = true; applyView(); return; }
+      if (e.status === 503){ showBanner('<strong>Database not connected.</strong> ' + esc(e.message)); return; }
+      S.fails++;
+      if (S.fails >= 2) showBanner('<strong>Connection problem.</strong> Retrying…');
+      throw e;
+    });
+  }
+  function poll(){
+    if (document.hidden || S.locked || S.polling) return;
+    S.polling = true;
+    refresh(S.tab === 'admin' && S.isAdmin ? 7 : 1).then(function(){ S.polling = false; }, function(){ S.polling = false; });
+  }
+
+  /* ---------- events ---------- */
   document.addEventListener('click', function(ev){
     var el = ev.target.closest('[data-act]'); if (!el || el.disabled) return;
     var act = el.dataset.act, id = el.dataset.id;
@@ -542,6 +608,7 @@ ul{padding:0;list-style:none}
     else if (act === 'del-yes') deleteDest(id);
     else if (act === 'refresh') loadWeek();
     else if (act === 'export') exportCsv();
+    else if (act === 'signout'){ store('session','adminPw',''); S.isAdmin = false; S.tab = 'desk'; renderAll(); }
   });
   document.addEventListener('input', function(ev){
     var k = ev.target.dataset && ev.target.dataset.draft; if (k) S.draft[k] = ev.target.value;
@@ -551,48 +618,42 @@ ul{padding:0;list-style:none}
     if (ev.key === 'Enter'){ ev.preventDefault(); var b = document.querySelector('[data-act="save"]'); if (b) saveEdit(b.dataset.id); }
     else if (ev.key === 'Escape'){ S.editing = null; S.draft = {}; renderDests(); }
   });
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) poll(); });
   $('#add-form').addEventListener('submit', function(ev){ ev.preventDefault(); addDest(); });
 
-  function subscribeToday(){
-    if (S.unsubToday) S.unsubToday();
-    S.day = dayKey(); S.today = []; S.todayLoaded = false;
-    S.unsubToday = S.db.collection('entries').where('day','==',S.day).limit(1000).onSnapshot(function(snap){
-      S.today = snap.docs.map(function(d){ var x = Object.assign({}, d.data()); x.id = d.id; return x; });
-      S.todayLoaded = true; renderAll();
-    }, function(){ showBanner('<strong>Live counts stopped.</strong> Reload the page to reconnect.'); });
-  }
+  $('#gate-form').addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var pin = $('#gate-pin').value.trim();
+    $('#gate-msg').textContent = '';
+    api('POST','/api/login',{ pin:pin }).then(function(r){
+      if (!r.isStaff){ $('#gate-msg').textContent = 'That PIN is not right.'; return; }
+      store('local','staffPin',pin); $('#gate-pin').value = ''; S.locked = false;
+      refresh(1).catch(function(){});
+    }, function(e){ $('#gate-msg').textContent = e.message; });
+  });
+  $('#admin-form').addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var pw = $('#admin-pw').value;
+    $('#admin-msg').textContent = '';
+    api('POST','/api/login',{ password:pw, pin:store('local','staffPin') }).then(function(r){
+      if (!r.isAdmin){ $('#admin-msg').textContent = 'That password is not right.'; return; }
+      store('session','adminPw',pw); $('#admin-pw').value = ''; S.isAdmin = true;
+      renderAll(); loadWeek();
+    }, function(e){ $('#admin-msg').textContent = e.message; });
+  });
 
+  /* ---------- start ---------- */
   function boot(){
-    $('#datel').textContent = new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    renderDesk(); renderDests(); renderWeek();
-    Promise.all([use('db'), use('user'), use('downloads')]).then(function(r){
-      S.db = r[0]; S.dl = r[2];
-      var user = r[1];
-      if (!S.db){
-        showBanner('<strong>Sign in to Claude to use this counter.</strong> Counts are shared between everyone at the front desk, so they need an account.');
-        S.canWrite = false; renderDesk(); return;
-      }
-      var p1 = user ? user.canEdit().catch(function(){ return false; }) : Promise.resolve(false);
-      var p2 = user ? user.can('data.write').catch(function(){ return null; }) : Promise.resolve(null);
-      Promise.all([p1, p2]).then(function(x){
-        S.canAdmin = !!x[0]; S.canWrite = x[1] !== false;
-        if (!S.canWrite) showBanner('<strong>View only.</strong> Ask the owner to share this page with you as a Contributor to log entries.');
-        $('#export').hidden = !S.dl;
-        S.db.collection('destinations').onSnapshot(function(snap){
-          S.dests = snap.docs.map(function(d){ var v = Object.assign({}, d.data()); v.id = d.id; return v; })
-            .sort(function(a,b){ return (a.order||0) - (b.order||0); });
-          S.destsLoaded = true; renderAll();
-        }, function(){ showBanner('<strong>Live updates stopped.</strong> Reload the page to reconnect.'); });
-        subscribeToday();
-        renderAll();
-      });
-    });
-    setInterval(function(){
-      if (S.db && dayKey() !== S.day){ S.mine = []; S.week = null; subscribeToday(); if (S.tab === 'admin') loadWeek(); renderAll(); }
-    }, 30000);
+    renderDesk(); applyView();
+    var pw = store('session','adminPw');
+    var check = pw ? api('POST','/api/login',{ password:pw, pin:store('local','staffPin') }).then(function(r){
+      S.isAdmin = !!r.isAdmin; if (!r.isAdmin) store('session','adminPw','');
+    }, function(){}) : Promise.resolve();
+    check.then(function(){ return refresh(1); }).catch(function(){});
+    setInterval(poll, 4000);
   }
   boot();
 })();
 </script>
-
-</body></html>
+</body>
+</html>
