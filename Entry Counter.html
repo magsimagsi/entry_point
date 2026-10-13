@@ -1,0 +1,598 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Entry Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700;800&display=swap">
+<style>
+/* Layout: front desk is one screen (big daily count + one-tap destination tiles); the Admin tab holds the destination list and 7-day totals. Wayfinding-sign type, cool paper neutrals, one cobalt action color. */
+:root{
+  --bg:#EDF0EE; --surface:#FFFFFF; --surface-2:#F4F6F5; --ink:#12201D; --muted:#566662; --line:#D2D9D6;
+  --accent:#1B4FD6; --accent-ink:#FFFFFF; --accent-soft:#E2E9FB;
+  --ok:#14764A; --warn:#9A5B00; --danger:#B3261E; --danger-soft:#FBE7E5;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C1311; --surface:#15201D; --surface-2:#1B2825; --ink:#E6EEEB; --muted:#94A5A0; --line:#2A3A36;
+    --accent:#7AA2FF; --accent-ink:#0A1226; --accent-soft:#1A2745;
+    --ok:#4CC38A; --warn:#E0A84A; --danger:#FF8A80; --danger-soft:#3A1F1D;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C1311; --surface:#15201D; --surface-2:#1B2825; --ink:#E6EEEB; --muted:#94A5A0; --line:#2A3A36;
+  --accent:#7AA2FF; --accent-ink:#0A1226; --accent-soft:#1A2745;
+  --ok:#4CC38A; --warn:#E0A84A; --danger:#FF8A80; --danger-soft:#3A1F1D;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+.app{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:16px 48px}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.muted{color:var(--muted)}
+h1,h2,h3,p,dl,dd,ul{margin:0}
+ul{padding:0;list-style:none}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand svg{flex:none;color:var(--accent)}
+.brand h1{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.03em;text-transform:uppercase;line-height:1}
+.tabs{display:flex;border:1px solid var(--line);background:var(--surface);border-radius:4px;padding:3px;gap:3px}
+.tab{min-height:44px;padding:0 20px;border:0;background:transparent;border-radius:3px;font-weight:600;cursor:pointer;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.notice{border:1px solid var(--line);background:var(--surface-2);border-radius:4px;padding:12px 14px;margin-bottom:16px;color:var(--muted)}
+.notice strong{color:var(--ink)}
+
+/* shared bits */
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.hint{font-size:14px;color:var(--muted)}
+.sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px;margin-bottom:12px}
+.sec-head h2{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.02em;text-transform:uppercase;line-height:1.1;text-wrap:balance}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:16px}
+.btn{min-height:44px;padding:0 16px;border:1px solid var(--line);background:var(--surface);border-radius:4px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--danger);border-color:var(--danger)}
+.btn.small{min-height:36px;padding:0 12px;font-size:14px}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.input{min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:4px;background:var(--surface);width:100%;min-width:0}
+.input:focus-visible{border-color:var(--accent)}
+
+/* front desk */
+.desk{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:16px;align-items:start}
+.side{display:flex;flex-direction:column;gap:16px}
+.counter{padding:18px 18px 16px}
+.big{font-family:var(--display);font-weight:800;font-size:clamp(96px,22vw,152px);line-height:.88;letter-spacing:-.01em;font-variant-numeric:tabular-nums;margin-block:6px 6px}
+.datel{font-weight:500}
+.split{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.split dt{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);line-height:1.25}
+.split dd{font-family:var(--display);font-weight:700;font-size:28px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stepper{display:grid;grid-template-columns:56px 1fr 56px;gap:8px;margin-block:10px 8px}
+.stepper button{min-height:56px;font-size:28px;font-weight:600;border:1px solid var(--line);border-radius:4px;background:var(--surface-2);cursor:pointer}
+.stepper button:hover{border-color:var(--accent)}
+.stepper output{display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:800;font-size:44px;font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:4px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-bottom:28px}
+.tile{display:flex;flex-direction:column;justify-content:space-between;gap:8px;min-height:116px;padding:14px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:4px;cursor:pointer;min-width:0;transition:background .2s,border-color .2s,transform .1s}
+.tile:hover:not(:disabled){border-color:var(--accent)}
+.tile:active:not(:disabled){transform:scale(.98)}
+.tile:disabled{opacity:.5;cursor:not-allowed}
+.tile.pulse{background:var(--accent-soft);border-color:var(--accent)}
+.tile-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.tile-name{font-family:var(--display);font-weight:700;font-size:27px;line-height:1.05;letter-spacing:.01em;overflow-wrap:anywhere}
+.tile-count{font-family:var(--display);font-weight:800;font-size:30px;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.tile-note{font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.tile.none{border-style:dashed;background:transparent}
+.tile.none .tile-name{color:var(--muted)}
+.recent-head{margin-top:4px}
+.recent li{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);min-width:0}
+.recent .t{width:52px;flex:none;font-variant-numeric:tabular-nums;color:var(--muted)}
+.recent .n{width:36px;flex:none;font-family:var(--display);font-weight:700;font-size:22px;font-variant-numeric:tabular-nums}
+.recent .d{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.empty{padding:14px 0;color:var(--muted)}
+
+/* admin */
+.admin{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+.add-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:10px;align-items:end;margin-bottom:6px}
+.form-msg{min-height:20px;font-size:14px;color:var(--danger);margin-bottom:8px}
+.dlist{border-top:1px solid var(--line)}
+.drow{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.drow.off .dmain strong{color:var(--muted)}
+.order{display:flex;flex-direction:column;gap:2px;flex:none}
+.order button{width:36px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:var(--surface-2);border-radius:3px;cursor:pointer}
+.order button:disabled{opacity:.35;cursor:not-allowed}
+.dmain{flex:1 1 180px;min-width:0;display:flex;flex-direction:column}
+.dmain strong{font-size:17px;overflow-wrap:anywhere}
+.dmain span{font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.dcount{display:flex;flex-direction:column;align-items:flex-end;min-width:48px}
+.dcount b{font-family:var(--display);font-size:26px;line-height:1;font-variant-numeric:tabular-nums}
+.dcount span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.switch{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface-2);font-size:14px;font-weight:600;cursor:pointer;color:var(--muted)}
+.switch[aria-checked="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.dact{display:flex;gap:6px;flex-wrap:wrap}
+.drow.confirm{background:var(--danger-soft);padding-inline:12px;margin-inline:-12px}
+.drow.edit .field{flex:1 1 180px}
+.bars{display:flex;gap:8px;align-items:flex-end}
+.bar-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bar-val{font-family:var(--display);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;line-height:1}
+.bar-track{height:132px;width:100%;display:flex;align-items:flex-end;background:var(--surface-2);border-radius:3px}
+.bar{width:100%;background:color-mix(in srgb,var(--accent) 38%,var(--surface));border-radius:3px 3px 0 0;min-height:2px}
+.bar-col.today .bar{background:var(--accent)}
+.bar-label{font-size:12px;line-height:1.2;text-align:center;color:var(--muted)}
+.bar-col.today .bar-label{color:var(--ink);font-weight:700}
+.sum{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline;margin-bottom:14px}
+.sum b{font-family:var(--display);font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.bydest{margin-top:20px}
+.bydest li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.bydest .nm{overflow-wrap:anywhere}
+.bydest .v{font-family:var(--display);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+.bydest .meter{grid-column:1/-1;height:4px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.bydest .meter i{display:block;height:100%;background:var(--accent)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:4px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px);text-align:center;z-index:10}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:860px){
+  .desk,.admin{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:520px){
+  .add-form{grid-template-columns:minmax(0,1fr)}
+  .split{grid-template-columns:1fr 1fr}
+  .split div:last-child{grid-column:1/-1}
+  .tiles{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .brand h1{font-size:26px}
+}
+@media (prefers-reduced-motion:reduce){
+  .tile,#toast{transition:none}
+  .tile:active:not(:disabled){transform:none}
+}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square" aria-hidden="true"><path d="M14 4h6v16h-6"/><path d="M3 12h12M11 8l4 4-4 4"/></svg>
+      <h1>Entry Counter</h1>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button class="tab" role="tab" id="tab-desk" aria-selected="true" aria-controls="panel-desk" data-act="tab" data-tab="desk">Front desk</button>
+      <button class="tab" role="tab" id="tab-admin" aria-selected="false" aria-controls="panel-admin" data-act="tab" data-tab="admin">Admin</button>
+    </nav>
+  </header>
+
+  <div id="banner" class="notice" hidden></div>
+
+  <section id="panel-desk" class="desk" role="tabpanel" aria-labelledby="tab-desk">
+    <div class="side">
+      <div class="card counter">
+        <p class="eyebrow">Entered today</p>
+        <p class="big" id="big" aria-live="polite">–</p>
+        <p class="datel" id="datel"></p>
+        <dl class="split">
+          <div><dt>Sent to a destination</dt><dd id="s-assigned">0</dd></div>
+          <div><dt>Counted only</dt><dd id="s-none">0</dd></div>
+          <div><dt>Last entry</dt><dd id="s-last">–</dd></div>
+        </dl>
+      </div>
+      <div class="card">
+        <p class="eyebrow" id="group-label">People in this group</p>
+        <div class="stepper" role="group" aria-labelledby="group-label">
+          <button type="button" data-act="step" data-d="-1" aria-label="One fewer person">−</button>
+          <output id="group-val" for="group-label">1</output>
+          <button type="button" data-act="step" data-d="1" aria-label="One more person">+</button>
+        </div>
+        <p class="hint">Goes back to 1 after each entry.</p>
+      </div>
+    </div>
+    <div>
+      <div class="sec-head">
+        <h2>Where are they going?</h2>
+        <p class="hint">Tap a destination to log the entry.</p>
+      </div>
+      <div class="tiles" id="tiles"></div>
+      <div class="sec-head recent-head">
+        <h2>Recent entries</h2>
+        <button type="button" class="btn small" id="undo" data-act="undo" disabled>Undo my last entry</button>
+      </div>
+      <ul class="recent" id="recent"></ul>
+    </div>
+  </section>
+
+  <section id="panel-admin" class="admin" role="tabpanel" aria-labelledby="tab-admin" hidden>
+    <div class="card">
+      <div class="sec-head">
+        <h2>Destinations</h2>
+        <p class="hint">The list front desk staff tap from.</p>
+      </div>
+      <div id="locked" class="notice" hidden><strong>Admin access needed.</strong> You can see the list but only an editor can change it. Ask the owner to share this page with you as an Editor.</div>
+      <form id="add-form" class="add-form" autocomplete="off" hidden>
+        <div class="field"><label for="dest-name">Destination</label><input class="input" id="dest-name" maxlength="60" placeholder="e.g. Laboratory" required></div>
+        <div class="field"><label for="dest-note">Location note</label><input class="input" id="dest-note" maxlength="80" placeholder="e.g. Ground floor, east wing"></div>
+        <button class="btn primary" type="submit">Add</button>
+      </form>
+      <p class="form-msg" id="form-msg" role="alert"></p>
+      <ul class="dlist" id="dlist"></ul>
+    </div>
+    <div class="card">
+      <div class="sec-head">
+        <h2>Last 7 days</h2>
+        <p class="hint">People who entered, per day.</p>
+      </div>
+      <div class="sum"><b id="w-total">–</b><span class="muted">people in 7 days</span></div>
+      <div class="bars" id="bars" aria-label="People entering per day"></div>
+      <div class="bydest">
+        <p class="eyebrow">By destination, 7 days</p>
+        <ul id="bydest"></ul>
+      </div>
+      <div class="tools">
+        <button type="button" class="btn" data-act="refresh">Refresh</button>
+        <button type="button" class="btn" id="export" data-act="export" hidden>Export CSV</button>
+      </div>
+    </div>
+  </section>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  var $ = function(s){ return document.querySelector(s); };
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+  var pad = function(n){ return String(n).padStart(2,'0'); };
+  var dayKey = function(d){ d = d || new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); };
+  var timeStr = function(ts){ var d = new Date(ts); return pad(d.getHours())+':'+pad(d.getMinutes()); };
+  var sum = function(list, f){ var t = 0; for (var i=0;i<list.length;i++) t += f(list[i]); return t; };
+  var ICON_UP = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 10l5-5 5 5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+  var ICON_DOWN = '<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"/></svg>';
+
+  var S = {
+    db:null, dl:null, canAdmin:false, canWrite:true,
+    tab:'desk', group:1, day:dayKey(),
+    dests:[], destsLoaded:false, today:[], todayLoaded:false,
+    mine:[], week:null, weekLoading:false, weekErr:false,
+    editing:null, draft:{}, confirmDel:null, unsubToday:null
+  };
+
+  function use(name){
+    if (!window.claude || !window.claude.use) return Promise.resolve(null);
+    return window.claude.use(name).then(function(x){ return x || null; }, function(){ return null; });
+  }
+
+  var toastTimer = null;
+  function toast(msg){
+    var t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2300);
+  }
+  function showBanner(html){ var b = $('#banner'); b.innerHTML = html; b.hidden = !html; }
+
+  function keepFocus(fn){
+    var a = document.activeElement, key = a && a.dataset ? a.dataset.focus : null;
+    fn();
+    if (key){
+      var el = document.querySelector('[data-focus="' + key.replace(/"/g,'\\"') + '"]');
+      if (el && !el.disabled) el.focus({preventScroll:true});
+    }
+  }
+
+  function destName(id, fallback){
+    for (var i=0;i<S.dests.length;i++) if (S.dests[i].id === id) return S.dests[i].name;
+    return fallback ? fallback + ' (removed)' : 'No destination';
+  }
+  function activeDests(){ return S.dests.filter(function(d){ return d.active !== false; }); }
+  function todayCountFor(id){ return sum(S.today.filter(function(e){ return (e.dest||'') === id; }), function(e){ return e.n||1; }); }
+
+  /* ---------- front desk ---------- */
+  function renderDesk(){
+    var total = sum(S.today, function(e){ return e.n||1; });
+    var none = sum(S.today.filter(function(e){ return !e.dest; }), function(e){ return e.n||1; });
+    var last = 0; S.today.forEach(function(e){ if (e.ts > last) last = e.ts; });
+    $('#big').textContent = S.todayLoaded ? total : '–';
+    $('#datel').textContent = new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    $('#s-assigned').textContent = total - none;
+    $('#s-none').textContent = none;
+    $('#s-last').textContent = last ? timeStr(last) : '–';
+    $('#group-val').textContent = S.group;
+    $('#undo').disabled = !S.mine.length || !S.canWrite;
+
+    var dis = S.canWrite ? '' : ' disabled';
+    var html = activeDests().map(function(d){
+      return '<button type="button" class="tile" data-act="log" data-dest="'+esc(d.id)+'" data-focus="t-'+esc(d.id)+'"'+dis+'>'
+        + '<span class="tile-top"><span class="tile-name">'+esc(d.name)+'</span><span class="tile-count">'+todayCountFor(d.id)+'</span></span>'
+        + '<span class="tile-note">'+esc(d.note || '')+'</span></button>';
+    }).join('');
+    html += '<button type="button" class="tile none" data-act="log" data-dest="" data-focus="t-none"'+dis+'>'
+      + '<span class="tile-top"><span class="tile-name">Just count</span><span class="tile-count">'+none+'</span></span>'
+      + '<span class="tile-note">No destination yet</span></button>';
+    if (S.destsLoaded && !activeDests().length){
+      html = '<p class="empty" style="grid-column:1/-1">No destinations yet. Open the Admin tab to add the list. You can still count entries below.</p>' + html;
+    }
+    keepFocus(function(){ $('#tiles').innerHTML = html; });
+
+    var recent = S.today.slice().sort(function(a,b){ return b.ts - a.ts; }).slice(0,8);
+    $('#recent').innerHTML = recent.length ? recent.map(function(e){
+      var nm = e.dest ? destName(e.dest, e.destName) : 'Counted only';
+      return '<li><span class="t">'+timeStr(e.ts)+'</span><span class="n">+'+(e.n||1)+'</span><span class="d">'+esc(nm)+'</span>'
+        + (S.canWrite ? '<button type="button" class="btn small" data-act="remove" data-id="'+esc(e.id)+'" aria-label="Remove entry at '+timeStr(e.ts)+'">Remove</button>' : '')
+        + '</li>';
+    }).join('') : '<li class="empty">'+(S.todayLoaded ? 'No entries yet today.' : 'Loading…')+'</li>';
+  }
+
+  function logEntry(destId, btn){
+    if (!S.db || !S.canWrite) return;
+    var n = S.group;
+    var name = destId ? destName(destId) : '';
+    var entry = { ts: Date.now(), day: dayKey(), n: n, dest: destId || '', destName: name };
+    S.group = 1;
+    S.db.collection('entries').add(entry).then(function(ref){
+      S.mine.push(ref); renderDesk();
+      toast('+' + n + (name ? ' to ' + name : ' counted'));
+    }, function(){
+      S.group = n; renderDesk();
+      toast('Could not save that entry. Check your access and try again.');
+    });
+    renderDesk();
+    var b = document.querySelector('[data-focus="' + (destId ? 't-'+destId : 't-none') + '"]');
+    if (b){ b.classList.add('pulse'); setTimeout(function(){ b.classList.remove('pulse'); }, 350); }
+  }
+
+  function undoLast(){
+    var ref = S.mine.pop();
+    if (!ref){ return; }
+    ref.delete().then(function(){ toast('Last entry removed'); }, function(){ S.mine.push(ref); toast('Could not remove that entry.'); });
+    renderDesk();
+  }
+  function removeEntry(id){
+    S.mine = S.mine.filter(function(r){ return r.id !== id; });
+    S.db.doc('entries/' + id).delete().then(function(){ toast('Entry removed'); }, function(){ toast('Could not remove that entry.'); });
+    renderDesk();
+  }
+
+  /* ---------- admin: destinations ---------- */
+  function renderDests(){
+    var adm = S.canAdmin;
+    $('#locked').hidden = adm;
+    $('#add-form').hidden = !adm;
+    var list = S.dests;
+    var html = list.map(function(d, i){
+      var id = esc(d.id);
+      if (adm && S.confirmDel === d.id){
+        return '<li class="drow confirm"><div class="dmain"><strong>Delete “'+esc(d.name)+'”?</strong><span>Past entries keep the name. This cannot be undone.</span></div>'
+          + '<div class="dact"><button type="button" class="btn small danger" data-act="del-yes" data-id="'+id+'" data-focus="dy-'+id+'">Delete</button>'
+          + '<button type="button" class="btn small" data-act="del-no" data-focus="dn-'+id+'">Keep</button></div></li>';
+      }
+      if (adm && S.editing === d.id){
+        var nm = S.draft.name != null ? S.draft.name : d.name;
+        var nt = S.draft.note != null ? S.draft.note : (d.note || '');
+        return '<li class="drow edit"><div class="field"><label for="e-name">Destination</label><input class="input" id="e-name" maxlength="60" data-draft="name" data-focus="en" value="'+esc(nm)+'"></div>'
+          + '<div class="field"><label for="e-note">Location note</label><input class="input" id="e-note" maxlength="80" data-draft="note" data-focus="eo" value="'+esc(nt)+'"></div>'
+          + '<div class="dact"><button type="button" class="btn small primary" data-act="save" data-id="'+id+'">Save</button><button type="button" class="btn small" data-act="cancel">Cancel</button></div></li>';
+      }
+      var on = d.active !== false;
+      var row = '<li class="drow'+(on?'':' off')+'">';
+      if (adm){
+        row += '<div class="order"><button type="button" data-act="up" data-id="'+id+'" data-focus="up-'+id+'" aria-label="Move '+esc(d.name)+' up"'+(i===0?' disabled':'')+'>'+ICON_UP+'</button>'
+          + '<button type="button" data-act="down" data-id="'+id+'" data-focus="dn2-'+id+'" aria-label="Move '+esc(d.name)+' down"'+(i===list.length-1?' disabled':'')+'>'+ICON_DOWN+'</button></div>';
+      }
+      row += '<div class="dmain"><strong>'+esc(d.name)+'</strong><span>'+esc(d.note || 'No location note')+'</span></div>'
+        + '<div class="dcount"><b>'+todayCountFor(d.id)+'</b><span>today</span></div>';
+      if (adm){
+        row += '<button type="button" class="switch" role="switch" aria-checked="'+on+'" data-act="toggle" data-id="'+id+'" data-focus="sw-'+id+'" aria-label="Show '+esc(d.name)+' at the front desk">'+(on?'Shown':'Hidden')+'</button>'
+          + '<div class="dact"><button type="button" class="btn small" data-act="edit" data-id="'+id+'" data-focus="ed-'+id+'">Edit</button>'
+          + '<button type="button" class="btn small danger" data-act="del" data-id="'+id+'" data-focus="dl-'+id+'">Delete</button></div>';
+      } else {
+        row += '<span class="muted">'+(on?'Shown':'Hidden')+'</span>';
+      }
+      return row + '</li>';
+    }).join('');
+    if (!list.length) html = '<li class="empty">'+(S.destsLoaded ? 'No destinations yet. Add the first one above.' : 'Loading…')+'</li>';
+    keepFocus(function(){ $('#dlist').innerHTML = html; });
+  }
+
+  function formMsg(t){ $('#form-msg').textContent = t || ''; }
+  function nameTaken(name, exceptId){
+    var low = name.toLowerCase();
+    return S.dests.some(function(d){ return d.id !== exceptId && String(d.name).toLowerCase() === low; });
+  }
+  function addDest(){
+    var name = $('#dest-name').value.trim(), note = $('#dest-note').value.trim();
+    if (!name){ formMsg('Enter a destination name.'); return; }
+    if (nameTaken(name)){ formMsg('A destination called “' + name + '” already exists.'); return; }
+    formMsg('');
+    var order = S.dests.reduce(function(m,d){ return Math.max(m, d.order || 0); }, 0) + 10;
+    S.db.collection('destinations').add({ name:name, note:note, active:true, order:order }).then(function(){
+      $('#dest-name').value = ''; $('#dest-note').value = ''; $('#dest-name').focus();
+      toast('Added ' + name);
+    }, function(){ formMsg('Could not save. Only editors can change the list.'); });
+  }
+  function saveEdit(id){
+    var name = ($('#e-name').value || '').trim(), note = ($('#e-note').value || '').trim();
+    if (!name){ formMsg('A destination needs a name.'); return; }
+    if (nameTaken(name, id)){ formMsg('A destination called “' + name + '” already exists.'); return; }
+    formMsg('');
+    S.db.doc('destinations/' + id).update({ name:name, note:note }).then(function(){
+      S.editing = null; S.draft = {}; renderDests(); toast('Saved');
+    }, function(){ formMsg('Could not save. Only editors can change the list.'); });
+  }
+  function toggleDest(id){
+    var d = S.dests.filter(function(x){ return x.id === id; })[0]; if (!d) return;
+    S.db.doc('destinations/' + id).update({ active: d.active === false }).catch(function(){ toast('Could not change that. Only editors can.'); });
+  }
+  function moveDest(id, dir){
+    var i = S.dests.findIndex(function(d){ return d.id === id; }), j = i + dir;
+    if (i < 0 || j < 0 || j >= S.dests.length) return;
+    var arr = S.dests.slice(); var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    var chain = Promise.resolve();
+    arr.forEach(function(d, idx){
+      var want = (idx + 1) * 10;
+      if (d.order !== want) chain = chain.then(function(){ return S.db.doc('destinations/' + d.id).update({ order: want }); });
+    });
+    chain.catch(function(){ toast('Could not reorder. Only editors can.'); });
+  }
+  function deleteDest(id){
+    S.confirmDel = null;
+    S.db.doc('destinations/' + id).delete().then(function(){ toast('Destination deleted'); }, function(){ toast('Could not delete. Only editors can.'); });
+    renderDests();
+  }
+
+  /* ---------- admin: last 7 days ---------- */
+  function lastDays(){
+    var out = [];
+    for (var i=6;i>=0;i--){ var d = new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()-i); out.push({ key:dayKey(d), date:d }); }
+    return out;
+  }
+  function entriesFor(key){
+    if (key === S.day) return S.today;
+    return (S.week && S.week[key]) || [];
+  }
+  function loadWeek(){
+    if (!S.db) return;
+    S.weekLoading = true; S.weekErr = false; renderWeek();
+    var days = lastDays();
+    Promise.all(days.map(function(d){ return S.db.collection('entries').where('day','==',d.key).limit(1000).get(); })).then(function(snaps){
+      S.week = {};
+      days.forEach(function(d, i){ S.week[d.key] = snaps[i].docs.map(function(x){ return x.data(); }); });
+      S.weekLoading = false; renderWeek();
+    }, function(){ S.weekLoading = false; S.weekErr = true; renderWeek(); });
+  }
+  function renderWeek(){
+    var days = lastDays();
+    var totals = days.map(function(d){ return sum(entriesFor(d.key), function(e){ return e.n||1; }); });
+    var max = Math.max.apply(null, totals.concat([1]));
+    var grand = totals.reduce(function(a,b){ return a+b; }, 0);
+    $('#w-total').textContent = S.week || S.todayLoaded ? grand : '–';
+    $('#bars').innerHTML = days.map(function(d, i){
+      var wd = d.date.toLocaleDateString(undefined,{weekday:'short'});
+      var dd = d.date.toLocaleDateString(undefined,{day:'numeric',month:'short'});
+      return '<div class="bar-col'+(d.key===S.day?' today':'')+'"><span class="bar-val">'+totals[i]+'</span>'
+        + '<div class="bar-track"><div class="bar" style="height:'+(totals[i]/max*100)+'%"></div></div>'
+        + '<span class="bar-label">'+esc(wd)+'<br>'+esc(dd)+'</span></div>';
+    }).join('');
+    var agg = {};
+    days.forEach(function(d){
+      entriesFor(d.key).forEach(function(e){
+        var k = e.dest || 'none';
+        if (!agg[k]) agg[k] = { name: e.dest ? destName(e.dest, e.destName) : 'Counted only', n:0 };
+        agg[k].n += e.n||1;
+      });
+    });
+    var rows = Object.keys(agg).map(function(k){ return agg[k]; }).sort(function(a,b){ return b.n - a.n; });
+    var top = rows.length ? rows[0].n : 1;
+    var msg = S.weekLoading ? 'Loading…' : S.weekErr ? 'Could not load earlier days. Try Refresh.' : 'No entries in the last 7 days.';
+    $('#bydest').innerHTML = rows.length ? rows.map(function(r){
+      return '<li><span class="nm">'+esc(r.name)+'</span><span class="v">'+r.n+'</span><span class="meter"><i style="width:'+(r.n/top*100)+'%"></i></span></li>';
+    }).join('') : '<li class="empty">'+msg+'</li>';
+  }
+
+  function csvCell(v){
+    v = String(v == null ? '' : v);
+    if (/^[=+\-@\t\r]/.test(v)) v = "'" + v;
+    return '"' + v.replace(/"/g,'""') + '"';
+  }
+  function exportCsv(){
+    if (!S.dl) return;
+    var days = lastDays(), all = [];
+    days.forEach(function(d){ entriesFor(d.key).forEach(function(e){ all.push(e); }); });
+    all.sort(function(a,b){ return a.ts - b.ts; });
+    var lines = ['Date,Time,People,Destination'];
+    all.forEach(function(e){
+      lines.push([csvCell(e.day), csvCell(timeStr(e.ts)), e.n||1, csvCell(e.dest ? destName(e.dest, e.destName) : 'Counted only')].join(','));
+    });
+    S.dl.save({ filename: 'entries-' + days[0].key + '-to-' + days[6].key + '.csv', data: lines.join('\n') }).then(function(){
+      toast('CSV saved');
+    }, function(e){ if (!e || e.code !== 'declined') toast('Could not save the file here.'); });
+  }
+
+  /* ---------- wiring ---------- */
+  function renderAll(){
+    keepFocus(function(){
+      renderDesk();
+      if (S.tab === 'admin'){ renderDests(); renderWeek(); }
+    });
+  }
+  function setTab(t){
+    S.tab = t;
+    ['desk','admin'].forEach(function(k){
+      $('#panel-'+k).hidden = k !== t;
+      $('#tab-'+k).setAttribute('aria-selected', String(k === t));
+    });
+    if (t === 'admin'){ renderDests(); renderWeek(); if (S.db && !S.week && !S.weekLoading) loadWeek(); }
+    else renderDesk();
+  }
+
+  document.addEventListener('click', function(ev){
+    var el = ev.target.closest('[data-act]'); if (!el || el.disabled) return;
+    var act = el.dataset.act, id = el.dataset.id;
+    if (act === 'tab') setTab(el.dataset.tab);
+    else if (act === 'log') logEntry(el.dataset.dest);
+    else if (act === 'step'){ S.group = Math.max(1, Math.min(99, S.group + Number(el.dataset.d))); $('#group-val').textContent = S.group; }
+    else if (act === 'undo') undoLast();
+    else if (act === 'remove') removeEntry(id);
+    else if (act === 'edit'){ S.editing = id; S.draft = {}; S.confirmDel = null; formMsg(''); renderDests(); var i = $('#e-name'); if (i) i.focus(); }
+    else if (act === 'cancel'){ S.editing = null; S.draft = {}; formMsg(''); renderDests(); }
+    else if (act === 'save') saveEdit(id);
+    else if (act === 'toggle') toggleDest(id);
+    else if (act === 'up') moveDest(id, -1);
+    else if (act === 'down') moveDest(id, 1);
+    else if (act === 'del'){ S.confirmDel = id; S.editing = null; renderDests(); }
+    else if (act === 'del-no'){ S.confirmDel = null; renderDests(); }
+    else if (act === 'del-yes') deleteDest(id);
+    else if (act === 'refresh') loadWeek();
+    else if (act === 'export') exportCsv();
+  });
+  document.addEventListener('input', function(ev){
+    var k = ev.target.dataset && ev.target.dataset.draft; if (k) S.draft[k] = ev.target.value;
+  });
+  document.addEventListener('keydown', function(ev){
+    if (!ev.target.dataset || !ev.target.dataset.draft) return;
+    if (ev.key === 'Enter'){ ev.preventDefault(); var b = document.querySelector('[data-act="save"]'); if (b) saveEdit(b.dataset.id); }
+    else if (ev.key === 'Escape'){ S.editing = null; S.draft = {}; renderDests(); }
+  });
+  $('#add-form').addEventListener('submit', function(ev){ ev.preventDefault(); addDest(); });
+
+  function subscribeToday(){
+    if (S.unsubToday) S.unsubToday();
+    S.day = dayKey(); S.today = []; S.todayLoaded = false;
+    S.unsubToday = S.db.collection('entries').where('day','==',S.day).limit(1000).onSnapshot(function(snap){
+      S.today = snap.docs.map(function(d){ var x = Object.assign({}, d.data()); x.id = d.id; return x; });
+      S.todayLoaded = true; renderAll();
+    }, function(){ showBanner('<strong>Live counts stopped.</strong> Reload the page to reconnect.'); });
+  }
+
+  function boot(){
+    $('#datel').textContent = new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    renderDesk(); renderDests(); renderWeek();
+    Promise.all([use('db'), use('user'), use('downloads')]).then(function(r){
+      S.db = r[0]; S.dl = r[2];
+      var user = r[1];
+      if (!S.db){
+        showBanner('<strong>Sign in to Claude to use this counter.</strong> Counts are shared between everyone at the front desk, so they need an account.');
+        S.canWrite = false; renderDesk(); return;
+      }
+      var p1 = user ? user.canEdit().catch(function(){ return false; }) : Promise.resolve(false);
+      var p2 = user ? user.can('data.write').catch(function(){ return null; }) : Promise.resolve(null);
+      Promise.all([p1, p2]).then(function(x){
+        S.canAdmin = !!x[0]; S.canWrite = x[1] !== false;
+        if (!S.canWrite) showBanner('<strong>View only.</strong> Ask the owner to share this page with you as a Contributor to log entries.');
+        $('#export').hidden = !S.dl;
+        S.db.collection('destinations').onSnapshot(function(snap){
+          S.dests = snap.docs.map(function(d){ var v = Object.assign({}, d.data()); v.id = d.id; return v; })
+            .sort(function(a,b){ return (a.order||0) - (b.order||0); });
+          S.destsLoaded = true; renderAll();
+        }, function(){ showBanner('<strong>Live updates stopped.</strong> Reload the page to reconnect.'); });
+        subscribeToday();
+        renderAll();
+      });
+    });
+    setInterval(function(){
+      if (S.db && dayKey() !== S.day){ S.mine = []; S.week = null; subscribeToday(); if (S.tab === 'admin') loadWeek(); renderAll(); }
+    }, 30000);
+  }
+  boot();
+})();
+</script>
+
+</body></html>
